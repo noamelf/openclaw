@@ -44,6 +44,12 @@ RUN pnpm ui:build
 
 ENV NODE_ENV=production
 
+# Install gogcli (Google Workspace CLI) for Gmail send/search
+RUN ARCH=$(uname -m | sed 's/aarch64/arm64/' | sed 's/x86_64/amd64/') && \
+    curl -fsSL "https://github.com/steipete/gogcli/releases/download/v0.11.0/gogcli_0.11.0_linux_${ARCH}.tar.gz" \
+    | tar -xz -C /usr/local/bin gog && \
+    chmod +x /usr/local/bin/gog
+
 # Allow non-root user to write temp files during runtime/tests.
 RUN chown -R node:node /app
 
