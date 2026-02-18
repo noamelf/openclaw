@@ -1,0 +1,76 @@
+# OpenClaw DNS Allowlist - CoreDNS Configuration
+# Only listed domains resolve via upstream DNS (8.8.8.8).
+# All other domains return REFUSED.
+
+# Allowed domains - forward to Google DNS
+api.anthropic.com {
+    log
+    forward . 8.8.8.8 8.8.4.4
+}
+
+api.telegram.org {
+    log
+    forward . 8.8.8.8 8.8.4.4
+}
+
+# WhatsApp domains (WebSocket, media CDN, calls)
+web.whatsapp.com {
+    log
+    forward . 8.8.8.8 8.8.4.4
+}
+
+whatsapp.net {
+    log
+    forward . 8.8.8.8 8.8.4.4
+}
+
+whatsapp.com {
+    log
+    forward . 8.8.8.8 8.8.4.4
+}
+
+# Google APIs (Gmail, Calendar, Tasks, OAuth)
+gmail.googleapis.com {
+    log
+    forward . 8.8.8.8 8.8.4.4
+}
+
+www.googleapis.com {
+    log
+    forward . 8.8.8.8 8.8.4.4
+}
+
+oauth2.googleapis.com {
+    log
+    forward . 8.8.8.8 8.8.4.4
+}
+
+tasks.googleapis.com {
+    log
+    forward . 8.8.8.8 8.8.4.4
+}
+
+calendar.googleapis.com {
+    log
+    forward . 8.8.8.8 8.8.4.4
+}
+
+accounts.google.com {
+    log
+    forward . 8.8.8.8 8.8.4.4
+}
+
+# Baileys version check
+raw.githubusercontent.com {
+    log
+    forward . 8.8.8.8 8.8.4.4
+}
+
+# Default: refuse all other domains
+. {
+    log
+    errors
+    template ANY ANY {
+        rcode REFUSED
+    }
+}

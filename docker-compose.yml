@@ -22,6 +22,10 @@ services:
         limits:
           memory: 2G
           cpus: '2.0'
+    networks:
+      openclaw-net:
+    dns:
+      - 172.30.0.10
     command:
       [
         "node",
@@ -32,6 +36,25 @@ services:
         "--port",
         "18789",
       ]
+    depends_on:
+      dns-allowlist:
+        condition: service_started
+
+  # DNS allowlist (CoreDNS): only allowed domains resolve, everything else
+  # returns REFUSED. This is the primary network lockdown mechanism.
+  # The gateway container uses this as its sole DNS server, so it can only
+  # connect to explicitly allowed domains.
+  # Allowed: api.anthropic.com, api.telegram.org, *.whatsapp.net,
+  #          *.whatsapp.com, Google APIs, raw.githubusercontent.com
+  dns-allowlist:
+    image: coredns/coredns:1.11.1
+    volumes:
+      - ./network-lockdown/Corefile:/Corefile:ro
+    command: ["-conf", "/Corefile"]
+    restart: unless-stopped
+    networks:
+      openclaw-net:
+        ipv4_address: 172.30.0.10
 
   caddy:
     image: caddy:2-alpine
@@ -43,6 +66,8 @@ services:
     depends_on:
       - openclaw-gateway
     restart: unless-stopped
+    networks:
+      openclaw-net:
 
   openclaw-cli:
     image: ${OPENCLAW_IMAGE:-openclaw:local}
@@ -58,6 +83,15 @@ services:
     tty: true
     init: true
     entrypoint: ["node", "dist/index.js"]
+    networks:
+      openclaw-net:
+
+networks:
+  openclaw-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
 
 volumes:
   caddy_data:
